@@ -1,1 +1,7 @@
+*.json
+data/
+.env
+.env.*
+
+node_modules
 ignore
