@@ -1,45 +1,41 @@
-const dashcore = require('@dashevo/dashcore-lib');
+"use strict";
 
-// List of votes from vote-collector api (/validVotes route).
-const votes = require('./data/votes.json');
-
-// Candidates list from DashWatch, same json file from website
-const candidateList = require('./data/candidates.json');
-
-const buildValidCandidateIDMap = () => {
-  let candidateIdentifiers = {};
-  candidateList.forEach(obj => {
-    candidateIdentifiers[obj.key] = 1;
-  });
-  return candidateIdentifiers;
-};
-
-// dash-cli masternodelist json 'ENABLED' > mnlist.json
-const mnSnapshot = require('./data/mnlist.json');
+require("dotenv").config({ path: ".env" });
 
 // dte2019 = "Dash Trust Elections 2019"
-const voteMsgPrefix = 'dte2019-';
-const re = new RegExp(`^${voteMsgPrefix}`);
+let voteMsgPrefix = process.env.VOTE_PREFIX;
+// curl -fL https://dashvote.duckdns.org/api/votes > votes.json
+let votes = require(process.env.VOTES_JSON);
+// curl -fL https://dashvote.duckdns.org/api/candidates > candidates.json
+let candidateList = require(process.env.CANDIDATES_JSON);
+// dash-cli masternodelist json 'ENABLED' > mnlist.json
+let mnSnapshot = require(process.env.MNLIST_JSON);
+// ex: 2022-04-15T00:00:00Z
+let tooLate = new Date(process.env.VOTING_END_DATE).valueOf();
+// ex: mainnet or testnet
+let network = process.env.DASH_NETWORK;
 
-const buildValidMNCollateralMap = () => {
+let dashcore = require("@dashevo/dashcore-lib");
+
+function buildValidMNCollateralMap() {
   let mnCollateral = {};
-  for (let key in mnSnapshot) {
-    let mnObj = mnSnapshot[key];
-    if (mnObj.status === 'ENABLED') {
-      mnCollateral[mnObj.payee] = 1;
+  Object.values(mnSnapshot).forEach(function (mn) {
+    if (mn.status === "ENABLED") {
+      mnCollateral[mn.votingaddress] = true;
     }
-  }
+  });
   return mnCollateral;
-};
+}
 
-const tooLate = 1554076800;  // 2019-04-01 00:00:00 UTC
-const tallyVotes = () => {
+function tallyVotes() {
   // List of valid MN collateral addresses which comes from the MN list
   // snapshot.
   const mnCollateralMap = buildValidMNCollateralMap();
 
   // Map of valid candidate identifiers.
-  const candidateIDs = buildValidCandidateIDMap();
+  const handles = candidateList.map(function (c) {
+    return c.handle;
+  });
 
   // Keep a map of MNO collateral addresses to prove there wasn't an invalid
   // dataset.  An invalid dataset is one which contains multiple votes from the
@@ -47,38 +43,45 @@ const tallyVotes = () => {
   let seenCollateral = {};
 
   // user identifier / count
-  //
-  // This is like an object where values default to zero.
-  let candidateTally = new Proxy({}, {
-      get(obj, prop) {
-        return obj.hasOwnProperty(prop) ? obj[prop] : 0;
-      },
+  let candidateTally = {};
+  handles.forEach(function (handle) {
+    candidateTally[handle] = 0;
   });
 
-  votes.forEach(vote => {
+  votes.forEach((vote) => {
     // log entire vote so we know which one if discarded
-    console.log(`Vote <addr:${vote.addr}, msg:${vote.msg}, sig:${vote.sig}, ts:${vote.ts}>`);
+    function logVote() {
+      console.warn(
+        `Vote <addr:${vote.addr}, msg:${vote.msg}, sig:${vote.sig}, ts:${vote.ts}>`
+      );
+    }
 
     // duplicate MNO collateral addresses
     if (seenCollateral[vote.addr] !== undefined) {
       // go crazy here. invalid dataset.
-      console.log("error: invalid dataset - duplicate collateral addresses detected")
-      process.exit(1)
+      console.error(
+        "error: invalid dataset - duplicate collateral addresses detected"
+      );
+      process.exit(1);
     }
     seenCollateral[vote.addr] = 1;
 
     // 0. Filter votes that came in after March 31st 2019, 23:59
     let ts = Math.trunc(Date.parse(vote.ts) / 1000);
     if (ts >= tooLate) {
-      console.log(
-        `Timestamp ${vote.ts} arrived post-deadline (cutoff == ${tooLate - 1}) -- vote discarded.`
+      logVote();
+      console.warn(
+        `Timestamp ${vote.ts} arrived post-deadline (cutoff == ${
+          tooLate - 1
+        }) -- vote discarded.`
       );
       return;
     }
 
     // 1. Verify the vote Dash address is in the valid MN snapshot.
     if (mnCollateralMap[vote.addr] === undefined) {
-      console.log(
+      logVote();
+      console.warn(
         `Address ${vote.addr} not in valid MN snapshot -- vote discarded.`
       );
       return;
@@ -86,21 +89,24 @@ const tallyVotes = () => {
 
     // 2. Verify the message payload has our valid prefix & in proper format.
     // ensure vote.msg =~ /^dte2019-/
-    let m = re.exec(vote.msg);
+    let m = vote.msg?.startsWith(voteMsgPrefix);
     if (m === null) {
-      console.log(
-        `Message ${
-          vote.msg
-        } does not match valid vote prefix -- vote discarded.`
+      logVote();
+      console.warn(
+        `Message ${vote.msg} does not match valid vote prefix -- vote discarded.`
       );
       return;
     }
-    let candidateVoteStr = vote.msg.split(re)[1];
+    let candidateVoteStr = vote.msg.slice(voteMsgPrefix.length);
 
     // 3. Verify the signature matches the message.
-    let isValidAddr = dashcore.Address.isValid(vote.addr, process.env.DASH_NETWORK);
+    let isValidAddr = dashcore.Address.isValid(
+      vote.addr,
+      process.env.DASH_NETWORK
+    );
     if (isValidAddr === false) {
-      console.log(`Address ${vote.addr} is not valid -- vote discarded.`);
+      logVote();
+      console.warn(`Address ${vote.addr} is not valid -- vote discarded.`);
       return;
     }
     let message = dashcore.Message(vote.msg);
@@ -111,7 +117,8 @@ const tallyVotes = () => {
       // no-op
     }
     if (isValidSig === false) {
-      console.log(`Signature ${vote.sig} is not valid -- vote discarded.`);
+      logVote();
+      console.warn(`Signature ${vote.sig} is not valid -- vote discarded.`);
       return;
     }
 
@@ -119,53 +126,52 @@ const tallyVotes = () => {
     //    a. TamperGuard - Ensure no-one was trying to game the system by
     //       including some identifier multiple times.
     //    b. Tally votes for valid candidates.
-    let candidates = candidateVoteStr.split('|');
+    let candidates = candidateVoteStr.split("|");
     // let candidateVoteStr = vote.msg.split(re)[1];
     // 4a
-    let isValidCandidateList = tamperGuard(candidates, candidateIDs);
+    let isValidCandidateList = tamperGuard(candidates, handles);
     if (isValidCandidateList === false) {
-      console.log(`Vote failed tamper guard -- vote discarded.`);
+      logVote();
+      console.warn(`Vote failed tamper guard -- vote discarded.`);
       return;
     }
 
     // 4b
-    candidates.forEach(identifier => {
+    candidates.forEach((identifier) => {
       candidateTally[identifier] += 1;
     });
   });
 
   return candidateTally;
-};
+}
 
-const tamperGuard = (voteList, candidateIDMap) => {
+function tamperGuard(voteList, handles) {
   let seen = {};
 
-  for (let i in voteList) {
-    let v = voteList[i];
-
+  voteList.forEach(function (v) {
     // check duplicate candidate choices
     if (seen[v] !== undefined) {
-      console.log('tamper guard - duplicate entry:', v);
+      console.warn("tamper guard - duplicate entry:", v);
       return false;
     }
-    seen[v] = 1;
+    seen[v] = true;
 
     // check invalid candidate choice
-    if (candidateIDMap[v] === undefined) {
-      console.log('tamper guard - invalid choice:', v);
+    if (!handles.includes(v)) {
+      console.warn("tamper guard - invalid choice:", v);
       return false;
     }
-  }
+  });
 
   return true;
-};
+}
 
-envCheck = () => {
+function envCheck() {
   const reqd = ["DASH_NETWORK"];
-  let missing = false
+  let missing = false;
   for (let i = 0; i < reqd.length; ++i) {
     if (!(reqd[i] in process.env)) {
-      console.error(`error: required env var ${reqd[i]} not set`)
+      console.error(`error: required env var ${reqd[i]} not set`);
       missing = true;
     }
   }
@@ -173,13 +179,12 @@ envCheck = () => {
     process.exit(1);
   }
 
-  const net = process.env.DASH_NETWORK;
-  if (net !== "testnet" && net !== "mainnet") {
-    console.error(`error: unknown Dash network '${net}'`)
-    console.error(`\texpected \"mainnet\" or \"testnet\"`)
+  if (network !== "testnet" && network !== "mainnet") {
+    console.error(`error: unknown Dash network '${net}'`);
+    console.error(`\texpected \"mainnet\" or \"testnet\"`);
     process.exit(1);
   }
-};
+}
 
 // ensure required env vars set
 envCheck();
@@ -187,17 +192,17 @@ envCheck();
 const tally = tallyVotes();
 
 // Build a lookup table of candidate ids => display names
-const buildDisplayNameMap = () => {
+function buildDisplayNameMap() {
   let candidateIdMap = {};
-  candidateList.forEach(obj => {
-    let displayName = obj.text;
-    if (obj.alias.length > 0) {
-      displayName += ` - ${obj.alias}`;
+  candidateList.forEach(function (c) {
+    let displayName = c.name;
+    if (c.handle.length > 0) {
+      displayName += ` (${c.handle})`;
     }
-    candidateIdMap[obj.key] = displayName;
+    candidateIdMap[c.handle] = displayName;
   });
   return candidateIdMap;
-};
+}
 
 const displayNames = buildDisplayNameMap();
 
@@ -213,11 +218,16 @@ for (let userid in tally) {
 const nums = Object.keys(counts);
 nums.sort((a, b) => b - a);
 
-for (let i in nums) {
-  count = nums[i];
-  for (let j in counts[count]) {
-    let userid = counts[count][j];
-    let name = displayNames[userid];
-    console.log(`${count} - ${name}`);
+console.info("");
+console.info("=== Results ===");
+console.info("");
+nums.forEach(function (count) {
+  if (count <= 0) {
+    return;
   }
-}
+  counts[count].forEach(function (userid) {
+    let name = displayNames[userid];
+    console.info(`${count} - ${name}`);
+  });
+});
+console.info("");
