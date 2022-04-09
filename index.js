@@ -20,8 +20,21 @@ let dashcore = require("@dashevo/dashcore-lib");
 function buildValidMNCollateralMap() {
   let mnCollateral = {};
   Object.values(mnSnapshot).forEach(function (mn) {
-    if (mn.status === "ENABLED") {
-      mnCollateral[mn.votingaddress] = true;
+    if (mn.status !== "ENABLED") {
+      return;
+    }
+
+    let addrInfo = mnCollateral[mn.votingaddress];
+    if (!addrInfo) {
+      addrInfo = {
+        addr: mn.votingaddress,
+        collateralAddrs: [],
+      };
+      mnCollateral[mn.votingaddress] = addrInfo;
+    }
+
+    if (!addrInfo.collateralAddrs.includes(mn.collateraladdress)) {
+      addrInfo.collateralAddrs.push(mn.collateralAddress);
     }
   });
   return mnCollateral;
@@ -45,9 +58,23 @@ function tallyVotes() {
   // user identifier / count
   let candidateTally = {};
   handles.forEach(function (handle) {
-    candidateTally[handle] = 0;
+    candidateTally[handle] = {
+      handle: handle,
+      total: 0,
+      unique: 0,
+    };
   });
 
+  votes.sort(function (a, b) {
+    let aDate = new Date(a.ts).valueOf();
+    let bDate = new Date(b.ts).valueOf();
+    if (!aDate || !bDate) {
+      let aVote = JSON.stringify(a);
+      let bVote = JSON.stringify(b);
+      throw new Error(`invalid timestamp:\na: ${aVote}\nb:${bVote}`);
+    }
+    return bDate - aDate;
+  });
   votes.forEach((vote) => {
     // log entire vote so we know which one if discarded
     function logVote() {
@@ -59,10 +86,10 @@ function tallyVotes() {
     // duplicate MNO collateral addresses
     if (seenCollateral[vote.addr] !== undefined) {
       // go crazy here. invalid dataset.
-      console.error(
-        "error: invalid dataset - duplicate collateral addresses detected"
+      console.warn(
+        `warn: ignoring - duplicate vote by collateral addresses: ${vote.addr}: ${vote.msg}`
       );
-      process.exit(1);
+      return;
     }
     seenCollateral[vote.addr] = 1;
 
@@ -86,6 +113,7 @@ function tallyVotes() {
       );
       return;
     }
+    let weight = mnCollateralMap[vote.addr].collateralAddrs.length;
 
     // 2. Verify the message payload has our valid prefix & in proper format.
     // ensure vote.msg =~ /^dte2019-/
@@ -130,7 +158,7 @@ function tallyVotes() {
     // let candidateVoteStr = vote.msg.split(re)[1];
     // 4a
     let isValidCandidateList = tamperGuard(candidates, handles);
-    if (isValidCandidateList === false) {
+    if (!isValidCandidateList) {
       logVote();
       console.warn(`Vote failed tamper guard -- vote discarded.`);
       return;
@@ -138,17 +166,26 @@ function tallyVotes() {
 
     // 4b
     candidates.forEach((identifier) => {
-      candidateTally[identifier] += 1;
+      candidateTally[identifier].total += weight;
+      candidateTally[identifier].unique += 1;
     });
   });
 
-  return candidateTally;
+  let tallies = Object.keys(candidateTally).map(function (handle) {
+    return candidateTally[handle];
+  });
+
+  tallies.sort(function (a, b) {
+    return b.total - a.total;
+  });
+
+  return tallies;
 }
 
 function tamperGuard(voteList, handles) {
   let seen = {};
 
-  voteList.forEach(function (v) {
+  function isValid(v) {
     // check duplicate candidate choices
     if (seen[v] !== undefined) {
       console.warn("tamper guard - duplicate entry:", v);
@@ -161,9 +198,11 @@ function tamperGuard(voteList, handles) {
       console.warn("tamper guard - invalid choice:", v);
       return false;
     }
-  });
 
-  return true;
+    return true;
+  }
+
+  return voteList.every(isValid);
 }
 
 function envCheck() {
@@ -189,8 +228,6 @@ function envCheck() {
 // ensure required env vars set
 envCheck();
 
-const tally = tallyVotes();
-
 // Build a lookup table of candidate ids => display names
 function buildDisplayNameMap() {
   let candidateIdMap = {};
@@ -206,28 +243,13 @@ function buildDisplayNameMap() {
 
 const displayNames = buildDisplayNameMap();
 
-// Sort the results by vote count and display them
-const counts = {};
-for (let userid in tally) {
-  if (counts[tally[userid]] === undefined) {
-    counts[tally[userid]] = [];
-  }
-  counts[tally[userid]] = [...counts[tally[userid]], userid];
-}
-
-const nums = Object.keys(counts);
-nums.sort((a, b) => b - a);
+const tallies = tallyVotes();
 
 console.info("");
 console.info("=== Results ===");
 console.info("");
-nums.forEach(function (count) {
-  if (count <= 0) {
-    return;
-  }
-  counts[count].forEach(function (userid) {
-    let name = displayNames[userid];
-    console.info(`${count} - ${name}`);
-  });
+tallies.forEach(function (tally) {
+  let name = displayNames[tally.handle];
+  console.info(`${tally.total} (from ${tally.unique} voters) - ${name}`);
 });
 console.info("");
