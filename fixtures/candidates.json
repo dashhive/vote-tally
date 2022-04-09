@@ -1,0 +1,37 @@
+[
+  {
+    "name": "Rion Gull",
+    "handle": "rion",
+    "email": "riongull@example.com",
+    "link": "https://example.com/riongull",
+    "trust_protector": false
+  },
+  {
+    "name": "Boris",
+    "handle": "White\u0026Bird",
+    "email": "takus.superdev@example.com",
+    "link": "",
+    "trust_protector": true
+  },
+  {
+    "name": "Alejandro Alpheus O'Neill Jerome",
+    "handle": "coolaj86",
+    "email": "coolaj86@example.com",
+    "link": "",
+    "trust_protector": true
+  },
+  {
+    "name": "Cool AJ 86",
+    "handle": "coolaj86+test.42",
+    "email": "coolaj86+test.42@example.com",
+    "link": "https://example.com/coolaj86",
+    "trust_protector": false
+  },
+  {
+    "name": "A B",
+    "handle": "ab",
+    "email": "a@b.com",
+    "link": "",
+    "trust_protector": false
+  }
+]

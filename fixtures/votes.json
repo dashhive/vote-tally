@@ -1,0 +1,43 @@
+[
+  {
+    "addr": "yYQj8okZv8wNBevFDQrDvUivLbKhAn74QP",
+    "msg": "dte2022-coolaj86|rion|ab",
+    "sig": "IEkk78W1x46W24o/i9SHforb3Q624aCfn3IVHF4KFLNbGU+r3FllgKiahuj+p3rUEOnd986suU7QPGWu90C/ubs=",
+    "ts": "2022-04-05T07:11:55.08418Z"
+  },
+  {
+    "comment": "overwritten by newer vote",
+    "addr": "yYQj8okZv8wNBevFDQrDvUivLbKhAn74QP",
+    "msg": "dte2022-coolaj86|rion",
+    "sig": "IB/qqcVL9x3sdZCwE/RbnPD4Ug5HgkEEVpfAo0gHQElbVuaUQlikfSu0udpT1ZWdm3s7Pej2740s9IKs3GM4Q+Y=",
+    "ts": "2022-04-04T07:11:55.08418Z"
+  },
+  {
+    "comment": "duplicate",
+    "addr": "yYQj8okZv8wNBevFDQrDvUivLbKhAn74QP",
+    "msg": "dte2022-coolaj86|rion|ab",
+    "sig": "IEkk78W1x46W24o/i9SHforb3Q624aCfn3IVHF4KFLNbGU+r3FllgKiahuj+p3rUEOnd986suU7QPGWu90C/ubs=",
+    "ts": "2022-04-05T07:11:55.08418Z"
+  },
+  {
+    "comment": "bad signature (address)",
+    "addr": "xYQj8okZv8wNBevFDQrDvUivLbKhAn74QP",
+    "msg": "dte2022-coolaj86|rion|ab",
+    "sig": "HEkk78W1x46W24o/i9SHforb3Q624aCfn3IVHF4KFLNbGU+r3FllgKiahuj+p3rUEOnd986suU7QPGWu90C/ubs=",
+    "ts": "2022-04-05T07:11:55.08418Z"
+  },
+  {
+    "comment": "bad signature (bytes)",
+    "addr": "yYQj8okZv8wNBevFDQrDvUivLbKhAn74QP",
+    "msg": "dte2022-coolaj86|rion|ab",
+    "sig": "HEkk78W1x46W24o/i9SHforb3Q624aCfn3IVHF4KFLNbGU+r3FllgKiahuj+p3rUEOnd986suU7QPGWu90C/ubs=",
+    "ts": "2022-04-05T07:11:55.08418Z"
+  },
+  {
+    "comment": "bad signature (message)",
+    "addr": "yYQj8okZv8wNBevFDQrDvUivLbKhAn74QP",
+    "msg": "dte2022-xoolaj86|rion|ab",
+    "sig": "IEkk78W1x46W24o/i9SHforb3Q624aCfn3IVHF4KFLNbGU+r3FllgKiahuj+p3rUEOnd986suU7QPGWu90C/ubs=",
+    "ts": "2022-04-05T07:11:55.08418Z"
+  }
+]
