@@ -23,20 +23,6 @@ Sample of `mnlist.json`:
       "collateraladdress": "Xkt7xJr2d9Pimu3wr2SxbvCzTVFtJAp3mq",
       "pubkeyoperator": "145860e681f8b96d77bf4e26352ad20a7b01674776b77404027794b36c2805ec534cda8f0d052afe23e94b6ccd48f3c8"
     },
-    "ca0eac6637d4a654e8d26009daa3099d1a7c8c771d878d7702e7a0e3e6d7eeb7-0": {
-      "proTxHash": "e1f9bc5af3fdb5375fd16b60c29b93ac0261a7aceb7d4ff87b0eb3e7755685e0",
-      "address": "35.85.115.165:9999",
-      "payee": "XmXPopjbtFXQLujZ35WQcnNQBiJmYH1tne",
-      "status": "ENABLED",
-      "lastpaidtime": 1649681005,
-      "lastpaidblock": 1652688,
-      "owneraddress": "XgPaD5ebnA3RMDQgA1qxgyZG1K4NtP79ZD",
-      "votingaddress": "XhLMvSLzkngpfBrgruXuhsmr7baifatkVY",
-      "collateraladdress": "Xbq1zxBH6gnusSPzfN9m44AQXwcSZTHeU4",
-      "pubkeyoperator": "0941fefb0b93dba5b6c6c545b9be8a31ad56e9d03f61ac4a44b4035e95247c66b7dea5c509c2ab394318b0affedee1c4"
-    },
-    ...
-    ...
     ...
     "a476f59677f43968ef22c12e250605e42b8ae6d0665fef1354c219ac1e3de82e-0": {
       "proTxHash": "af7b52f2333fbb5605105b3efd094547c2f77d81ca06aa97b784414c4d1efbff",
