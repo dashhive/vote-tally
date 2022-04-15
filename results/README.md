@@ -24,4 +24,5 @@ This hash was then uploaded to the Dash blockchain in an OP_RETURN transaction:
 ```
 
 Result in the Dash blockchain:
+
 <https://chainz.cryptoid.info/dash/tx.dws?8b0cb1d7950f983b783c21b3c31f987540fbbc371d9ea58ba02bb1b7fd2c4108.htm>
