@@ -135,7 +135,7 @@
       if (!hasPrefix) {
         logVote();
         let prefix = (vote.msg || "").split(electionSep)[0];
-        console.warn(`${vote.addr} | ERR_PREF | discard vote for '${prefix}'`);
+        console.warn(`${vote.addr} | ERR_VTAG | discard vote for '${prefix}'`);
         return false;
       }
 
@@ -167,7 +167,7 @@
       }
 
       let ts = new Date(vote.ts);
-      vote.ts = vote.ts.replace("T", "").replace(/\.\d+/, "");
+      vote.ts = vote.ts.replace("T", " ").replace(/\.\d+/, "");
 
       // 3. Discard votes that were cast too late
       if (ts >= tooLate) {
