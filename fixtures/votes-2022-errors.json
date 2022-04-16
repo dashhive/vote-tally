@@ -1,0 +1,65 @@
+[
+  {
+    "comment": "normal",
+    "addr": "XayriZV5qwoqKyyHZwgGKhgFqsKaaEWk8D",
+    "msg": "dte2022-MascaSimo|SpadesInvests|RodrixDigital|whysmh4dash|J.M.L.",
+    "sig": "ILX7jhC+zj6mNNSB+YwZPeBjl853O24LB7RuQGso2dMuOd0bUO0e9h8z56TtJIwZ7b9csUzV6e1r1oK4jmLabl8=",
+    "ts": "2022-04-14T21:20:49.887932Z"
+  },
+  {
+    "comment": "ERR_VTAG: dte2021 instead of dte2022",
+    "addr": "XayriZV5qwoqKyyHZwgGKhgFqsKaaEWk8D",
+    "msg": "dte2021-MascaSimo|SpadesInvests|RodrixDigital|whysmh4dash|J.M.L.",
+    "sig": "ILX7jhC+zj6mNNSB+YwZPeBjl853O24LB7RuQGso2dMuOd0bUO0e9h8z56TtJIwZ7b9csUzV6e1r1oK4jmLabl8=",
+    "ts": "2022-04-14T21:20:49.887932Z"
+  },
+  {
+    "comment": "ERR_ADDR: Y instead of X",
+    "addr": "YayriZV5qwoqKyyHZwgGKhgFqsKaaEWk8D",
+    "msg": "dte2022-MascaSimo|SpadesInvests|RodrixDigital|whysmh4dash|J.M.L.",
+    "sig": "ILX7jhC+zj6mNNSB+YwZPeBjl853O24LB7RuQGso2dMuOd0bUO0e9h8z56TtJIwZ7b9csUzV6e1r1oK4jmLabl8=",
+    "ts": "2022-04-14T21:20:49.887932Z"
+  },
+  {
+    "comment": "ERR_VSIG: H instead of I",
+    "addr": "XayriZV5qwoqKyyHZwgGKhgFqsKaaEWk8D",
+    "msg": "dte2022-MascaSimo|SpadesInvests|RodrixDigital|whysmh4dash|J.M.L.",
+    "sig": "HLX7jhC+zj6mNNSB+YwZPeBjl853O24LB7RuQGso2dMuOd0bUO0e9h8z56TtJIwZ7b9csUzV6e1r1oK4jmLabl8=",
+    "ts": "2022-04-14T21:20:49.887932Z"
+  },
+  {
+    "comment": "ERR_LATE: a day past voting close",
+    "addr": "XayriZV5qwoqKyyHZwgGKhgFqsKaaEWk8D",
+    "msg": "dte2022-MascaSimo|SpadesInvests|RodrixDigital|whysmh4dash|J.M.L.",
+    "sig": "ILX7jhC+zj6mNNSB+YwZPeBjl853O24LB7RuQGso2dMuOd0bUO0e9h8z56TtJIwZ7b9csUzV6e1r1oK4jmLabl8=",
+    "ts": "2022-04-15T21:20:49.887932Z"
+  },
+  {
+    "comment": "ERR_EARL: a day prior to voting open",
+    "addr": "XayriZV5qwoqKyyHZwgGKhgFqsKaaEWk8D",
+    "msg": "dte2022-MascaSimo|SpadesInvests|RodrixDigital|whysmh4dash|J.M.L.",
+    "sig": "ILX7jhC+zj6mNNSB+YwZPeBjl853O24LB7RuQGso2dMuOd0bUO0e9h8z56TtJIwZ7b9csUzV6e1r1oK4jmLabl8=",
+    "ts": "2022-04-02T21:20:49.887932Z"
+  },
+  {
+    "comment": "ERR_DUPL: nothing wrong, just the same as normal",
+    "addr": "XayriZV5qwoqKyyHZwgGKhgFqsKaaEWk8D",
+    "msg": "dte2022-MascaSimo|SpadesInvests|RodrixDigital|whysmh4dash|J.M.L.",
+    "sig": "ILX7jhC+zj6mNNSB+YwZPeBjl853O24LB7RuQGso2dMuOd0bUO0e9h8z56TtJIwZ7b9csUzV6e1r1oK4jmLabl8=",
+    "ts": "2022-04-14T21:20:49.887932Z"
+  },
+  {
+    "comment": "TODO: ERR_CUST: make an otherwise valid vote with write-in candidate",
+    "addr": "XayriZV5qwoqKyyHZwgGKhgFqsKaaEWk8D",
+    "msg": "dte2022-MascaSimo|SpadesInvests|RodrixDigital|whysmh4dash|J.M.L.",
+    "sig": "ILX7jhC+zj6mNNSB+YwZPeBjl853O24LB7RuQGso2dMuOd0bUO0e9h8z56TtJIwZ7b9csUzV6e1r1oK4jmLabl8=",
+    "ts": "2022-04-14T21:20:49.887932Z"
+  },
+  {
+    "comment": "ERR_UNKN: an otherwise valid vote, but with an non-registered address",
+    "addr": "XbQZv6L5Nc5w4bwSE9anyW9wvxaxfZDnaX",
+    "msg": "dte2022-StayDashy|i-am-sigmund|Ash|Walter",
+    "sig": "II4HhBOhUDYb4M27K7beA75pYeJ+J11GI+lEZcqhvRE4LDPvnF2mO2KwG3lPA2tL8HT00/9/NQQA4jhhaNRaLYc=",
+    "ts": "2022-04-12T17:14:31.528752Z"
+  }
+]
