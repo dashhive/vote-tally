@@ -1,0 +1,84 @@
+#!/usr/bin/env node
+"use strict";
+
+require("dotenv").config({ path: ".env" });
+
+let DashTrustVote = require("..").DashTrustVote;
+
+// Show votes if we're past the result date
+let now = Date.now();
+let resultDate = new Date(process.env.REACT_APP_VOTING_RESULT_DATE).valueOf();
+let showVotes = now > resultDate;
+
+async function main() {
+  // curl -fL https://dashvote.duckdns.org/api/votes > votes.json
+  let votes = await getJsonFile(
+    `../${process.env.REACT_APP_VOTES_JSON}`,
+    "votes"
+  );
+  // curl -fL https://dashvote.duckdns.org/api/candidates > candidates.json
+  let candidates = await getJsonFile(
+    `../${process.env.REACT_APP_CANDIDATES_JSON}`,
+    "candidates"
+  );
+  // dash-cli masternodelist json 'ENABLED' > mnlist.json
+  let mnlist = await getJsonFile(
+    `../${process.env.REACT_APP_MNLIST_JSON}`,
+    "mnlist"
+  );
+
+  const displayNames = buildDisplayNameMap(candidates);
+  let tallies = DashTrustVote.tally({ votes, candidates, mnlist });
+
+  console.info("");
+  console.info("=== Results ===");
+  console.info("");
+  tallies.forEach(function (tally) {
+    // show **** instead of name
+    let name = displayNames[tally.handle];
+    if (!showVotes) {
+      name = name
+        .split("")
+        .map(function () {
+          return "*";
+        })
+        .join("");
+    }
+    console.info(`${tally.total} (from ${tally.unique} voters) - ${name}`);
+  });
+  console.info("");
+}
+
+async function getJsonFile(filepath, apipath) {
+  try {
+    return require(filepath);
+  } catch (e) {
+    console.error(e);
+    // ignore
+  }
+
+  let Fs = require("fs").promises;
+  let baseUrl = process.env.REACT_APP_API_BASE_URL;
+  let data = await DashTrustVote.getJson(`${baseUrl}/api/${apipath}`);
+  await Fs.writeFile(filepath, JSON.stringify(data, null, 2), "utf8");
+  return data;
+}
+
+// Build a lookup table of candidate ids => display names
+function buildDisplayNameMap(candidates) {
+  let candidateIdMap = {};
+  candidates.forEach(function (c) {
+    let displayName = c.name;
+    if (c.handle.length > 0) {
+      displayName += ` (${c.handle})`;
+    }
+    candidateIdMap[c.handle] = displayName;
+  });
+  return candidateIdMap;
+}
+
+if ("undefined" !== typeof require && require.main === module) {
+  main().catch(function (err) {
+    console.error(err);
+  });
+}

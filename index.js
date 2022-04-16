@@ -1,4 +1,4 @@
-(function (exports) {
+(async function (exports) {
   "use strict";
 
   let pkg = { name: "dash-vote-tally", version: "0.0.0" };
@@ -10,27 +10,16 @@
   console.info(`${pkg.name} v${pkg.version}`);
   console.info();
 
-  require("dotenv").config({ path: ".env" });
-
   let electionSep = "-";
   let candidateSep = "|";
 
   // dte2019 = "Dash Trust Elections 2019"
   let voteMsgPrefix = process.env.REACT_APP_VOTE_TAG;
-  // curl -fL https://dashvote.duckdns.org/api/votes > votes.json
-  let votes = require(process.env.REACT_APP_VOTES_JSON);
-  // curl -fL https://dashvote.duckdns.org/api/candidates > candidates.json
-  let candidateList = require(process.env.REACT_APP_CANDIDATES_JSON);
-  // dash-cli masternodelist json 'ENABLED' > mnlist.json
-  let mnSnapshot = require(process.env.REACT_APP_MNLIST_JSON);
+
   // ex: 2022-04-03T00:00:00Z
   let tooEarly = new Date(process.env.REACT_APP_VOTING_START_DATE).valueOf();
   // ex: 2022-04-15T00:00:00Z
   let tooLate = new Date(process.env.REACT_APP_VOTING_END_DATE).valueOf();
-  // Show votes if we're past the result date
-  let now = Date.now();
-  let resultDate = new Date(process.env.REACT_APP_VOTING_RESULT_DATE).valueOf();
-  let showVotes = now > resultDate;
   // ex: mainnet or testnet
   let network = process.env.REACT_APP_DASH_NETWORK;
 
@@ -69,9 +58,9 @@
   // ensure required env vars set
   envCheck();
 
-  function buildValidMNCollateralMap() {
+  function buildValidMNCollateralMap(mnlist) {
     let mnCollateral = {};
-    Object.values(mnSnapshot).forEach(function (mn) {
+    Object.values(mnlist).forEach(function (mn) {
       if (mn.status !== "ENABLED") {
         return;
       }
@@ -92,13 +81,13 @@
     return mnCollateral;
   }
 
-  function tallyVotes() {
+  function tallyVotes({ votes, candidates, mnlist }) {
     // List of valid MN collateral addresses which comes from the MN list
     // snapshot.
-    const mnCollateralMap = buildValidMNCollateralMap();
+    const mnCollateralMap = buildValidMNCollateralMap(mnlist);
 
     // Map of valid candidate identifiers.
-    const handles = candidateList.map(function (c) {
+    const handles = candidates.map(function (c) {
       return c.handle;
     });
 
@@ -214,10 +203,10 @@
       let candidateVoteStr = vote.msg.slice(
         `${voteMsgPrefix}${electionSep}`.length
       );
-      let candidates = candidateVoteStr.split(candidateSep);
+      let candidateNames = candidateVoteStr.split(candidateSep);
 
       // 7. Only qualified candidates can be voted for, and only once
-      let isValidCandidateList = tamperGuard(candidates, handles);
+      let isValidCandidateList = tamperGuard(candidateNames, handles);
       if (!isValidCandidateList) {
         logVote();
         console.warn(
@@ -255,8 +244,8 @@
         candidatesMap[handle] = true;
       });
 
-      let candidates = Object.keys(candidatesMap);
-      candidates.forEach((identifier) => {
+      let candidateNames = Object.keys(candidatesMap);
+      candidateNames.forEach((identifier) => {
         candidateTally[identifier].total += weight;
         candidateTally[identifier].unique += 1;
       });
@@ -296,38 +285,20 @@
     return voteList.every(isValid);
   }
 
-  // Build a lookup table of candidate ids => display names
-  function buildDisplayNameMap() {
-    let candidateIdMap = {};
-    candidateList.forEach(function (c) {
-      let displayName = c.name;
-      if (c.handle.length > 0) {
-        displayName += ` (${c.handle})`;
-      }
-      candidateIdMap[c.handle] = displayName;
-    });
-    return candidateIdMap;
-  }
+  exports.DashTrustVote = {
+    tally: tallyVotes,
+    getJson: getJson,
+  };
 
-  const displayNames = buildDisplayNameMap();
-
-  const tallies = tallyVotes();
-
-  console.info("");
-  console.info("=== Results ===");
-  console.info("");
-  tallies.forEach(function (tally) {
-    // show **** instead of name
-    let name = displayNames[tally.handle];
-    if (!showVotes) {
-      name = name
-        .split("")
-        .map(function () {
-          return "*";
-        })
-        .join("");
+  async function getJson(url) {
+    let fetch = exports.fetch || require("node-fetch");
+    let resp = await fetch(url, { mode: "cors" });
+    if (!resp.ok) {
+      let err = new Error("bad request");
+      err.response = resp;
+      throw err;
     }
-    console.info(`${tally.total} (from ${tally.unique} voters) - ${name}`);
-  });
-  console.info("");
+    let data = await resp.json();
+    return data;
+  }
 })(("undefined" === module && window) || module.exports);
