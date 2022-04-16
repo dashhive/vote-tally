@@ -12,6 +12,10 @@ let candidateList = require(process.env.CANDIDATES_JSON);
 let mnSnapshot = require(process.env.MNLIST_JSON);
 // ex: 2022-04-15T00:00:00Z
 let tooLate = new Date(process.env.VOTING_END_DATE).valueOf();
+// Show votes if we're past the result date
+let now = Date.now();
+let resultDate = new Date(process.env.VOTING_RESULT_DATE).valueOf();
+let showVotes = now > resultDate;
 // ex: mainnet or testnet
 let network = process.env.DASH_NETWORK;
 
@@ -249,7 +253,16 @@ console.info("");
 console.info("=== Results ===");
 console.info("");
 tallies.forEach(function (tally) {
+  // show **** instead of name
   let name = displayNames[tally.handle];
+  if (!showVotes) {
+    name = name
+      .split("")
+      .map(function () {
+        return "*";
+      })
+      .join("");
+  }
   console.info(`${tally.total} (from ${tally.unique} voters) - ${name}`);
 });
 console.info("");
