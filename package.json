@@ -11,7 +11,7 @@
   "author": "",
   "license": "MIT",
   "dependencies": {
-    "@dashevo/dashcore-lib": "^0.16.9",
+    "@dashevo/dashcore-lib": "^0.18.15",
     "dotenv": "^16.0.0"
   }
 }
