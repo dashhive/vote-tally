@@ -1,6 +1,15 @@
 (function (exports) {
   "use strict";
 
+  let pkg = { name: "dash-vote-tally", version: "0.0.0" };
+  try {
+    pkg = require("./package.json");
+  } catch (e) {
+    // ignore
+  }
+  console.info(`${pkg.name} v${pkg.version}`);
+  console.info();
+
   require("dotenv").config({ path: ".env" });
 
   let electionSep = "-";
