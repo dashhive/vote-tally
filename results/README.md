@@ -3,13 +3,22 @@
 As of right now (just after 2022.04.15 00:00 UTC) the Trust Protector vote is
 closed.
 
-A
-[snapshot of the masternode list](https://raw.githubusercontent.com/dashhive/vote-tally/master/results/mnlist.json)
-was taken shortly after the vote close:
+### Snapshot [results/20xx/mnlist.json](/results/2022/mnlist.json)
 
-```
-masternodelist json ENABLED
-```
+This is the list of registered masternodes.
+
+- Published: **at the moment** that voting closes
+- Available: **before, during, and after** the vote, but only the snapshot at
+  the moment voting closes is official
+- Live Location:
+  - **Dash QT**
+    - (enable "Show Masternodes Tab" in `Preferences > Wallet`)
+  - `dash-cli masternodelist json 'ENABLED'`
+  - <https://api.dashtrust.org/api/mnlist>
+    - (updates about every 15 minutes until voting closes)
+  - <https://dashnode.duckdns.org/api/mnlist>
+- Archive Location:
+  <https://github.com/dashhive/vote-tally/tree/master/results/2022>
 
 Sample of `mnlist.json`:
 
@@ -50,7 +59,8 @@ openssl md5 mnlist.json
 MD5(mnlist.json)= 1449e888cfb1111a25b5433d0424f9ec
 ```
 
-This hash was then uploaded to the Dash blockchain in an OP_RETURN transaction:
+This hash was then uploaded to the Dash blockchain in an `OP_RETURN`
+transaction:
 
 ```
 # Ran from Dash Discord
