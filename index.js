@@ -71,8 +71,8 @@
           addr: mn.votingaddress,
           collateralAddrs: [],
         };
-        mnCollateral[mn.votingaddress] = addrInfo;
       }
+      mnCollateral[mn.votingaddress] = addrInfo;
 
       if (!addrInfo.collateralAddrs.includes(mn.collateraladdress)) {
         addrInfo.collateralAddrs.push(mn.collateralAddress);
@@ -131,7 +131,9 @@
 
       // 0. Verify the message payload is for *this* election
       //    (ex: starts with 'dte2022-')
-      let hasPrefix = vote.msg?.startsWith(`${voteMsgPrefix}${electionSep}`);
+      let hasPrefix = (vote.msg || "").startsWith(
+        `${voteMsgPrefix}${electionSep}`
+      );
       if (!hasPrefix) {
         logVote();
         let prefix = (vote.msg || "").split(electionSep)[0];
@@ -285,11 +287,6 @@
     return voteList.every(isValid);
   }
 
-  exports.DashTrustVote = {
-    tally: tallyVotes,
-    getJson: getJson,
-  };
-
   async function getJson(url) {
     let fetch = exports.fetch || require("node-fetch");
     let resp = await fetch(url, { mode: "cors" });
@@ -301,4 +298,9 @@
     let data = await resp.json();
     return data;
   }
+
+  exports.DashTrustVote = {
+    tally: tallyVotes,
+    getJson: getJson,
+  };
 })(("undefined" === module && window) || module.exports);
