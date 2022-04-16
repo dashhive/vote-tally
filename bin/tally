@@ -53,14 +53,17 @@ async function getJsonFile(filepath, apipath) {
   try {
     return require(filepath);
   } catch (e) {
-    console.error(e);
     // ignore
   }
 
   let Fs = require("fs").promises;
   let baseUrl = process.env.REACT_APP_API_BASE_URL;
   let data = await DashTrustVote.getJson(`${baseUrl}/api/${apipath}`);
-  await Fs.writeFile(filepath, JSON.stringify(data, null, 2), "utf8");
+  await Fs.writeFile(
+    `${__dirname}/${filepath}`,
+    JSON.stringify(data, null, 2),
+    "utf8"
+  );
   return data;
 }
 
