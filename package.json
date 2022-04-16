@@ -4,6 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
+    "fmt": "npx prettier@2 -w '*/**.{js,md,html}'",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "",
