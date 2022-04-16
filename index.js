@@ -25,39 +25,6 @@
 
   let dashcore = require("@dashevo/dashcore-lib");
 
-  function envCheck() {
-    const reqd = [
-      "REACT_APP_VOTING_START_DATE",
-      "REACT_APP_VOTING_END_DATE",
-      "REACT_APP_VOTING_RESULT_DATE",
-      "REACT_APP_VOTE_TAG",
-      "REACT_APP_DASH_NETWORK",
-      "REACT_APP_API_BASE_URL",
-      "REACT_APP_CANDIDATES_JSON",
-      "REACT_APP_VOTES_JSON",
-      "REACT_APP_MNLIST_JSON",
-    ];
-    let missing = false;
-    for (let i = 0; i < reqd.length; i += 1) {
-      if (!(reqd[i] in process.env)) {
-        console.error(`error: required env var ${reqd[i]} not set`);
-        missing = true;
-      }
-    }
-    if (missing === true) {
-      process.exit(1);
-    }
-
-    if (network !== "testnet" && network !== "mainnet") {
-      console.error(`error: unknown Dash network '${network}'`);
-      console.error(`\texpected \"mainnet\" or \"testnet\"`);
-      process.exit(1);
-    }
-  }
-
-  // ensure required env vars set
-  envCheck();
-
   function buildValidMNCollateralMap(mnlist) {
     let mnCollateral = {};
     Object.values(mnlist).forEach(function (mn) {
@@ -142,10 +109,7 @@
       }
 
       // 1. Verify the address is a Dash mainnet address
-      let isValidAddr = dashcore.Address.isValid(
-        vote.addr,
-        process.env.REACT_APP_DASH_NETWORK
-      );
+      let isValidAddr = dashcore.Address.isValid(vote.addr, network);
       if (isValidAddr === false) {
         logVote();
         console.warn(
