@@ -17,7 +17,7 @@ let showVotes = now > resultDate;
       "REACT_APP_VOTING_RESULT_DATE",
       "REACT_APP_VOTE_TAG",
       "REACT_APP_DASH_NETWORK",
-      "REACT_APP_API_BASE_URL",
+      "REACT_APP_API_URL",
       "REACT_APP_CANDIDATES_JSON",
       "REACT_APP_VOTES_JSON",
       "REACT_APP_MNLIST_JSON",
@@ -91,7 +91,7 @@ async function getJsonFile(filepath, apipath) {
   }
 
   let Fs = require("fs").promises;
-  let baseUrl = process.env.REACT_APP_API_BASE_URL;
+  let baseUrl = process.env.REACT_APP_API_URL;
   let data = await DashTrustVote.getJson(`${baseUrl}/api/${apipath}`);
   await Fs.writeFile(
     `${__dirname}/${filepath}`,
