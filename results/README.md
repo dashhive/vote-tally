@@ -1,14 +1,18 @@
 ### Vote validation
 
-As of right now (just after 2022.04.15 00:00 UTC) the Trust Protector vote is closed.
+As of right now (just after 2022.04.15 00:00 UTC) the Trust Protector vote is
+closed.
 
-A [snapshot of the masternode list](https://raw.githubusercontent.com/dashhive/vote-tally/master/results/mnlist.json) was taken shortly after the vote close:
+A
+[snapshot of the masternode list](https://raw.githubusercontent.com/dashhive/vote-tally/master/results/mnlist.json)
+was taken shortly after the vote close:
 
 ```
 masternodelist json ENABLED
 ```
 
 Sample of `mnlist.json`:
+
 ```
 {
     "f40b31b91ae5867929f8acac3e7bb3a95b7bce19d2da6b1dd7a0622462d54d3c-1": {
